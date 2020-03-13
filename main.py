@@ -25,7 +25,7 @@ class Puzzle:
 
     def solve(self, init, target):
         initial, target = Puzzle._prepare(init, target)
-        queue = [{'parent': None, 'board': initial, 'moves': 0}]
+        queue = [{'parent': None, 'board': initial}]
         hqueue = np.zeros(987654322, dtype=bool)
 
         iqueue = 0
@@ -46,10 +46,19 @@ class Puzzle:
         print('Not found')
 
     def _printsolution(self, node, queue):
-        if node['parent'] is not None:
-            self._printsolution(queue[node['parent']], queue)
+        if node['parent'] is None:
+            move = 0
+        else:
+            move = self._printsolution(queue[node['parent']], queue)
 
-        print("move: {}, board: {}".format(node['moves'], node['board']))
+        values = [str(x) if x is not None else ' ' for x in node['board']['values']]
+        print("""--------------------------------
+        move: {0}, board: {1} {2} {3}
+                         {4} {5} {6}
+                         {7} {8} {9}
+        """.format(*(['{:02d}'.format(move)] + values)))
+
+        return move + 1
 
     @staticmethod
     def _hash(node):
@@ -89,7 +98,7 @@ class Puzzle:
         board = copy.deepcopy(node['board'])
         Puzzle._change(board['values'], board['blank'], board['blank'] + step)
         board['blank'] += step
-        return {'parent': parent, 'board': board, 'moves': node['moves'] + 1}
+        return {'parent': parent, 'board': board}
 
     @staticmethod
     def _change(array, p1, p2):
